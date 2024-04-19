@@ -47,7 +47,7 @@
         }
     ],
     "require": {
-        "php": "^8.1.2",
+        "php": "^4.0",
         "ext-hash": "*",
         "ext-iconv": "*",
         "ext-json": "*",
