@@ -1,35 +1,60 @@
 <?php
+    use PHPUnit\Framework\TestCase;
+    use Facebook\WebDriver\Remote\RemoteWebDriver;
+    use Facebook\WebDriver\WebDriverBy;
+    use Facebook\WebDriver\WebDriverExpectedCondition;
 
     // initial url: http://localhost/phpmyadmin/index.php?route=/table/relation&db=test&table=test
 
     // Upon Drop: http://localhost/phpmyadmin/index.php?server=1&db=test&table=test
 
-    // Should be staying on that initial url
-
-    use PHPUnit\Framework\TestCase;
-
-    class DropForeignKeyTest extends TestCase
+    class AjaxEventTest extends TestCase
     {
+        protected $webDriver;
+
+        protected function setUp(): void
+        {
+            // creating driver 
+            $this->webDriver = RemoteWebDriver::create('http://localhost:4444/wd/hub', ['platform' => 'WINDOWS']);
+        }
+
+        protected function tearDown(): void
+        {
+            $this->webDriver->quit();
+        }
+
         public function testDropForeignKey()
         {
-            // Mock any necessary dependencies or setup for your unit test
-            $mockedObject = $this->getMockBuilder('YourClass')
-                                ->disableOriginalConstructor()
-                                ->getMock();
+            // just using my existing url here, might expand into a dataProvider for many URLs but I would have to make the tables in the app
+            $initialUrl = 'http://localhost/phpmyadmin/index.php?route=/table/relation&db=test&table=test';
 
-            // Assuming drop_foreign_key_anchor() is a method of YourClass
-            $result = $mockedObject->drop_foreign_key_anchor();
+            // Get info from url
+            $urlParts = parse_url($initialUrl);
+            parse_str($urlParts['query'], $queryParams);
+            $dbName = $queryParams['db'];
+            $tableName = $queryParams['table'];
 
-            // Add assertions to check the behavior after calling the function
-            $this->assertTrue($result->success);
+            $this->webDriver->get($initialUrl);
 
-            // Assuming getCurrentUrl() is a method that gets the current URL or state
-            $currentUrl = $mockedObject->getCurrentUrl();
+            // Find the "Drop Foreign key" anchor element
+            $dropElement = $this->webDriver->findElement(WebDriverBy::cssSelector('a.drop_foreign_key_anchor.ajax'));
 
-            // Check that the current URL or state is as expected after dropping the foreign key
-            $this->assertStringNotContainsString('/index.php?route=/table/relation', $currentUrl);
+            // Drop the FK
+            $dropElement->click();
 
-            // Add more assertions if needed to check other aspects of the behavior
+            // Examples say a wait is needed so it can finish up the action
+            $this->webDriver->wait(10)->until(
+                WebDriverExpectedCondition::urlContains('&server=1&db=' . $dbName . '&table=' . $tableName)
+            );
+
+            $currentUrl = $this->webDriver->getCurrentURL();
+
+            // Construct the expected URL based on the database name and table name
+            $expectedUrl = 'http://localhost/phpmyadmin/index.php?server=1&db=' . $dbName . '&table=' . $tableName;
+
+            // Assert that the URL remains on the initial URL after the drop action
+            $this->assertEquals($expectedUrl, $currentUrl);
         }
     }
+
 ?>
