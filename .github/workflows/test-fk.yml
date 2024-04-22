@@ -24,5 +24,8 @@ jobs:
       - name: Install Composer dependencies
         run: composer install
 
+      - name: Install PHPUnit
+        run: composer require --dev phpunit/phpunit
+
       - name: Run PHPUnit tests
-        run: phpunit FKRedirectTest.php
+        run: vendor/bin/phpunit FKRedirectTest.php
