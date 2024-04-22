@@ -1,12 +1,12 @@
-name: Run-FK-Tests
+name: Run-PHPUnit-Tests
 
 on:
   push:
     branches:
-      - drop-fk-redirect-error
+      - main  # Change this to your branch name if needed
   pull_request:
     branches:
-      - drop-fk-redirect-error
+      - main  # Change this to your branch name if needed
 
 jobs:
   test:
@@ -16,13 +16,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
         with:
-          node-version: '14'
+          php-version: '7.4'  # Adjust the PHP version as needed
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install Composer dependencies
+        run: composer install
 
-      - name: Run tests
-        run: npm test -- --file=fk-redirect.test.ts
+      - name: Run PHPUnit tests
+        run: phpunit FKRedirectTest.php
