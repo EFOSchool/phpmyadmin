@@ -1,12 +1,12 @@
-name: Run-PHPUnit-Tests
+name: Run-FK-Tests
 
 on:
   push:
     branches:
-      - main  # Change this to your branch name if needed
+      - drop-fk-redirect-error
   pull_request:
     branches:
-      - main  # Change this to your branch name if needed
+      - drop-fk-redirect-error
 
 jobs:
   test:
@@ -19,7 +19,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'  # Adjust the PHP version as needed
+          php-version: '7.4'
 
       - name: Install Composer dependencies
         run: composer install
